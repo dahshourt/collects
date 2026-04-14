@@ -46,39 +46,27 @@ class UserController extends Controller
 
     public function store_user(UserRequest $request)
     {
+        // Detailed log is written inside UserRepository::store_user()
         $this->model->store_user($request);
-
-        $this->writeLog(
-            'User',
-            'Created new user: ' . $request->input('user_name', 'N/A')
-                . ' | Email: ' . $request->input('email', 'N/A')
-                . ' | Role: ' . $request->input('role', 'N/A'),
-            'Create',
-            'User Management'
-        );
-
         return redirect()->route('users.index');
     }
 
     public function edit(User $user)
     {
         $groups = Group::latest()->get();
-        $this->writeLog('User', 'Viewed edit form for user: ' . $user->user_name, 'View', 'User Management');
+        $this->writeLog(
+            'User',
+            "Opened edit form for user: {$user->user_name} (ID: {$user->id})",
+            'View',
+            'User Management'
+        );
         return view('user.edit', compact('groups', 'user'));
     }
 
     public function update(User $user, UpdateUserController $request)
     {
+        // Detailed log (including active/inactive, changed fields) is written inside UserRepository::update()
         $this->model->update($user, $request);
-
-        $this->writeLog(
-            'User',
-            'Updated user ID ' . $user->id . ' | Username: ' . $user->user_name
-                . ' | Changed fields: ' . $this->formatRequestDetails($request->except(['_token', '_method', 'password'])),
-            'Update',
-            'User Management'
-        );
-
         return redirect()->route('users.index')->with('status', 'Updated Successfully');
     }
 }

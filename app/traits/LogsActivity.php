@@ -9,22 +9,19 @@ use Illuminate\Support\Facades\Request;
 /**
  * Trait LogsActivity
  *
- * Use this trait in any controller to get access to the writeLog() helper.
+ * Use in any controller: use App\traits\LogsActivity;
  *
- * Usage:
- *   use App\traits\LogsActivity;
- *   ...
- *   $this->writeLog('Report', 'User entered date range', 'Search', 'CM Report');
+ * $this->writeLog('Report', 'User searched CM report | Date: 2024-01-01', 'Search', 'CM Report');
  */
 trait LogsActivity
 {
     /**
      * Write an administration log entry.
      *
-     * @param string      $category  User | Group | Workflow | Report
-     * @param string      $details   Human-readable description of what happened
+     * @param string      $category  User | Group | Workflow | Report | Category
+     * @param string      $details   Human-readable description
      * @param string      $action    Create | Update | Delete | Search | Export | View | Login | Logout
-     * @param string|null $section   Sub-section label (optional, e.g. "CM Report", "Enterprise Report")
+     * @param string|null $section   Sub-section label e.g. "CM Report", "Custom Fields"
      */
     protected function writeLog(string $category, string $details, string $action = 'View', ?string $section = null): void
     {
@@ -39,17 +36,15 @@ trait LogsActivity
                 'user_agent' => Request::userAgent(),
             ]);
         } catch (\Exception $e) {
-            // Never let logging crash the application
             \Log::warning('AdministrationLog write failed: ' . $e->getMessage());
         }
     }
 
     /**
-     * Build a readable summary string from a request's input array.
-     * Null / empty values are omitted.
+     * Build a readable summary string from request inputs.
+     * Skips null / empty values.
      *
-     * Example output:
-     *   "Creator Id: john.doe | Status: Pending | Group Id: 3"
+     * Example: "Creator Id: john | Status: Pending | Group Id: 3"
      */
     protected function formatRequestDetails(array $inputs, array $skip = ['_token', '_method']): string
     {
@@ -58,7 +53,7 @@ trait LogsActivity
             if (in_array($key, $skip) || $value === null || $value === '') {
                 continue;
             }
-            $label = ucwords(str_replace('_', ' ', $key));
+            $label   = ucwords(str_replace('_', ' ', $key));
             $parts[] = "{$label}: " . (is_array($value) ? implode(', ', $value) : $value);
         }
         return implode(' | ', $parts) ?: 'No filters applied';

@@ -31,7 +31,12 @@ class GroupController extends Controller
 
     public function edit(Group $group)
     {
-        $this->writeLog('Group', 'Viewed edit form for group: ' . $group->name, 'View', 'Group Management');
+        $this->writeLog(
+            'Group',
+            "Opened edit form for group: {$group->name} (ID: {$group->id})",
+            'View',
+            'Group Management'
+        );
         return view('groups.edit', compact('group'));
     }
 
@@ -49,15 +54,8 @@ class GroupController extends Controller
 
     public function store_group(StoreRequest $request)
     {
+        // Detailed log written inside GroupRepository::store_group()
         $this->model->store_group($request);
-
-        $this->writeLog(
-            'Group',
-            'Created new group: ' . $request->input('name', 'N/A'),
-            'Create',
-            'Group Management'
-        );
-
         return redirect()->route('groups.create_group')->with('success', 'group added successfully');
     }
 
@@ -67,24 +65,14 @@ class GroupController extends Controller
         $form_title = 'assign users groups';
         $groups     = Group::latest()->get();
         $user       = User::latest('id')->first();
-
         $this->writeLog('Group', 'Viewed assign users to groups page', 'View', 'Group Management');
-
         return view('groups.assign_users_groups', compact('title', 'form_title', 'groups', 'user'));
     }
 
     public function update(Group $group, updateRequest $request)
     {
+        // Detailed log (including active/inactive, changed fields) written inside GroupRepository::update()
         $this->model->update($group, $request);
-
-        $this->writeLog(
-            'Group',
-            'Updated group ID ' . $group->id . ' | Name: ' . $group->name
-                . ' | Changed fields: ' . $this->formatRequestDetails($request->except(['_token', '_method'])),
-            'Update',
-            'Group Management'
-        );
-
         return redirect()->route('groups.index')->with('status', 'Updated Successfully');
     }
 }

@@ -45,14 +45,14 @@ class ReportController extends Controller
 
     public function cm_report()
     {
-        $users           = $this->User->get_all_users();
-        $groups          = $this->Group->get_all_groups();
-        $banks           = $this->Bank->get_all_banks();
-        $statuses        = $this->Status->get_all_statuses();
-        $market_segmets  = $this->Ticket->get_all_market_segments();
-        $trans_types     = $this->Ticket->get_all_transaction_types();
+        $users          = $this->User->get_all_users();
+        $groups         = $this->Group->get_all_groups();
+        $banks          = $this->Bank->get_all_banks();
+        $statuses       = $this->Status->get_all_statuses();
+        $market_segmets = $this->Ticket->get_all_market_segments();
+        $trans_types    = $this->Ticket->get_all_transaction_types();
 
-        $this->writeLog('Report', 'User opened CM Report page', 'View', 'CM Report');
+        $this->writeLog('Report', 'Opened CM Report page', 'View', 'CM Report');
 
         return view('reports.cm_report', compact('trans_types', 'market_segmets', 'users', 'groups', 'banks', 'statuses'));
     }
@@ -75,7 +75,7 @@ class ReportController extends Controller
 
         $this->writeLog(
             'Report',
-            'User searched CM Report | ' . $this->formatRequestDetails($request->except('_token')),
+            'Searched CM Report | ' . $this->formatRequestDetails($request->except('_token')),
             'Search',
             'CM Report'
         );
@@ -87,7 +87,6 @@ class ReportController extends Controller
     {
         $tickets = Session::get('cmreport');
         $data    = [];
-
         foreach ($tickets as $ticket) {
             $data[] = [
                 $ticket->creator->user_name,
@@ -102,7 +101,12 @@ class ReportController extends Controller
             ];
         }
 
-        $this->writeLog('Report', 'User exported CM Report data (' . count($data) . ' records)', 'Export', 'CM Report');
+        $this->writeLog(
+            'Report',
+            'Exported CM Report to Excel | Records exported: ' . count($data),
+            'Export',
+            'CM Report'
+        );
 
         return Excel::download(new CMReportExport($data), 'CM_Report.xlsx');
     }
@@ -119,24 +123,24 @@ class ReportController extends Controller
         $market_segmets = $this->Ticket->get_all_market_segments();
         $trans_types    = $this->Ticket->get_all_transaction_types();
 
-        $this->writeLog('Report', 'User opened Enterprise Report page', 'View', 'Enterprise Report');
+        $this->writeLog('Report', 'Opened Enterprise Report page', 'View', 'Enterprise Report');
 
         return view('reports.entrp_report', compact('trans_types', 'market_segmets', 'users', 'groups', 'banks', 'statuses', 'groupMember'));
     }
 
     public function entrp_report_result(Request $request)
     {
-        $created_at          = $request->input('created_at');
-        $end_created_at      = $request->input('end_created_at');
-        $customer_name       = $request->input('customer_name');
+        $created_at            = $request->input('created_at');
+        $end_created_at        = $request->input('end_created_at');
+        $customer_name         = $request->input('customer_name');
         $bank_transaction_date = $request->input('bank_transaction_date');
-        $transaction_amount  = $request->input('transaction_amount');
-        $ticket_num          = $request->input('ticket_num');
-        $account             = $request->input('account');
-        $transaction_type_id = $request->input('transaction_type_id');
-        $status              = $request->input('status');
-        $add_on_oracle_date  = $request->input('add_on_oracle_date');
-        $creator_name_id     = $request->input('creator_name_id');
+        $transaction_amount    = $request->input('transaction_amount');
+        $ticket_num            = $request->input('ticket_num');
+        $account               = $request->input('account');
+        $transaction_type_id   = $request->input('transaction_type_id');
+        $status                = $request->input('status');
+        $add_on_oracle_date    = $request->input('add_on_oracle_date');
+        $creator_name_id       = $request->input('creator_name_id');
 
         $tickets = $this->Ticket->ticket_entrp_report(
             $created_at, $customer_name, $bank_transaction_date, $transaction_amount,
@@ -146,7 +150,7 @@ class ReportController extends Controller
 
         $this->writeLog(
             'Report',
-            'User searched Enterprise Report | ' . $this->formatRequestDetails($request->except('_token')),
+            'Searched Enterprise Report | ' . $this->formatRequestDetails($request->except('_token')),
             'Search',
             'Enterprise Report'
         );
@@ -175,7 +179,7 @@ class ReportController extends Controller
         );
 
         $data = [];
-        foreach ($tickets as $key => $ticket) {
+        foreach ($tickets as $ticket) {
             $account = null;
             $amount  = null;
             if (!empty($ticket['ticket_multiple_settlements'][0]['account']) && !empty($ticket['ticket_multiple_settlements'][0]['amount'])) {
@@ -183,23 +187,13 @@ class ReportController extends Controller
                 $amount  = $ticket['ticket_multiple_settlements'][0]['amount'];
             }
             $data[] = [
-                $ticket->id,
-                $ticket->created_at,
-                $ticket->bank_transaction_date,
-                $ticket->bank->name,
-                $ticket->transaction_amount,
-                $ticket->account,
+                $ticket->id, $ticket->created_at, $ticket->bank_transaction_date,
+                $ticket->bank->name, $ticket->transaction_amount, $ticket->account,
                 $ticket->transaction_type->name,
                 preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $ticket->customer_name),
-                $ticket->status->name,
-                $ticket->group->name,
-                $ticket->market_segment->name,
-                $ticket->cheque_number,
-                $ticket->add_on_oracle_date,
-                $account,
-                $amount,
+                $ticket->status->name, $ticket->group->name, $ticket->market_segment->name,
+                $ticket->cheque_number, $ticket->add_on_oracle_date, $account, $amount,
             ];
-
             foreach ($ticket->ticket_multiple_settlements as $k => $value) {
                 if ($k > 0) {
                     $data[] = ['', '', '', '', '', '', '', '', '', '', '', '', '', $value['account'], $value['amount']];
@@ -207,7 +201,12 @@ class ReportController extends Controller
             }
         }
 
-        $this->writeLog('Report', 'User exported Enterprise Report data (' . count($data) . ' rows)', 'Export', 'Enterprise Report');
+        $this->writeLog(
+            'Report',
+            'Exported Enterprise Report to Excel | Filters: ' . $this->formatRequestDetails($request->except('_token')) . ' | Records: ' . count($data),
+            'Export',
+            'Enterprise Report'
+        );
 
         return Excel::download(new EntrpReportExport($data), 'Enterprise_Report_Export.xlsx');
     }
@@ -216,21 +215,21 @@ class ReportController extends Controller
     {
         $tickets = Session::get('cashreport');
         $data    = [];
-
         foreach ($tickets as $ticket) {
             $data[] = [
-                $ticket->created_at,
-                $ticket->bank_transaction_date,
-                $ticket->transaction_amount,
-                $ticket->account,
-                $ticket->id,
-                $ticket->transaction_type->name,
-                $ticket->customer_name,
-                $ticket->status->name,
+                $ticket->created_at, $ticket->bank_transaction_date,
+                $ticket->transaction_amount, $ticket->account,
+                $ticket->id, $ticket->transaction_type->name,
+                $ticket->customer_name, $ticket->status->name,
             ];
         }
 
-        $this->writeLog('Report', 'User exported Enterprise Report from session (' . count($data) . ' records)', 'Export', 'Enterprise Report');
+        $this->writeLog(
+            'Report',
+            'Exported Enterprise Report (session) to Excel | Records: ' . count($data),
+            'Export',
+            'Enterprise Report'
+        );
 
         return Excel::download(new EntrpReportExport($data), 'Entrp_Report.xlsx');
     }
@@ -246,7 +245,7 @@ class ReportController extends Controller
         $market_segmets = $this->Ticket->get_all_market_segments();
         $trans_types    = $this->Ticket->get_all_transaction_types();
 
-        $this->writeLog('Report', 'User opened Collection Report page', 'View', 'Collection Report');
+        $this->writeLog('Report', 'Opened Collection Report page', 'View', 'Collection Report');
 
         return view('reports.collection_report', compact('trans_types', 'market_segmets', 'users', 'groups', 'banks', 'statuses'));
     }
@@ -262,7 +261,7 @@ class ReportController extends Controller
         $market_segmets = $this->Ticket->get_all_market_segments();
         $trans_types    = $this->Ticket->get_all_transaction_types();
 
-        $this->writeLog('Report', 'User opened Cash Report page', 'View', 'Cash Report');
+        $this->writeLog('Report', 'Opened Cash Report page', 'View', 'Cash Report');
 
         return view('reports.cash_report', compact('trans_types', 'market_segmets', 'users', 'groups', 'banks', 'statuses'));
     }
@@ -288,7 +287,7 @@ class ReportController extends Controller
 
         $this->writeLog(
             'Report',
-            'User searched Cash Report | ' . $this->formatRequestDetails($request->except('_token')),
+            'Searched Cash Report | ' . $this->formatRequestDetails($request->except('_token')),
             'Search',
             'Cash Report'
         );

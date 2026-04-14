@@ -1,0 +1,114 @@
+
+@extends('layouts.master')
+@section('content')
+
+<div class="d-flex flex-column-fluid">
+    <!--begin::Container-->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <!--begin::Card-->
+                <div class="card card-custom gutter-b example example-compact">
+                    <div class="card-header">
+                        <h3 class="card-title">Collection Report</h3>
+                       
+                    </div>
+                    <!--begin::Form-->
+                    <form name="add-blog-post-form" id="add-blog-post-form" method="get" action="{{url('report/entrp-report-result')}}">
+                                               <div class="card-body">
+                           
+
+                            <div class="form-group col-md-6">
+                                <label>Ticket creation date
+                               </label>
+                                <input type="date" class="form-control" placeholder="Enter Customer Name" name="created_at" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Bank transaction date
+                                </label>
+                                <input type="date" class="form-control" placeholder="Enter Customer Name" name="bank_transaction_date" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Amount
+                                </label>
+                                <input type="number" class="form-control" placeholder="Enter Customer Name" name="transaction_amount" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Ticket Number
+                                </label>
+                                <input type="number" class="form-control" placeholder="Enter Customer Name" name="ticket_num" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Customer Account
+                                </label>
+                                <input type="text" class="form-control" placeholder="Enter Customer Account" name="account" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="exampleSelect1">Transaction Type
+                                </label>
+                                <select class="form-control" id="exampleSelect1" name="transaction_type_id">
+
+
+                                    <option value="">select Transaction Types</option>
+                                  @foreach ($trans_types as $t_type )
+                                <option value="{{$t_type->id}}">{{$t_type->name}}</option>
+                                  @endforeach
+
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Oracle field updated date
+                                </label>
+                                <input type="date" class="form-control" placeholder="Enter Customer Name" name="add_on_oracle_date" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Customer Name
+                                <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" placeholder="Enter Customer Name" name="customer_name" />
+                            </div>
+
+
+                            <div class="form-group col-md-6">
+                                <label for="exampleSelect1">Status
+                                </label>
+                                <select class="form-control" id="exampleSelect1" name="status">
+                                <option value="">Select Status</option>
+
+                                    @foreach ($statuses as $status )
+
+
+                                    <option value="{{$status->id}}">{{$status->name}}</option>
+                                    @endforeach
+                                  </select>
+                            </div>
+
+
+
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                            <button type="reset" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </form>
+                    <!--end::Form-->
+                </div>
+                <!--end::Card-->
+                <!--begin::Card-->
+
+                        </div>
+
+                    </form>
+                </div>
+                <!--end::Card-->
+                <!--begin::Card-->
+
+            </div>
+        </div>
+    </div>
+    <!--end::Container-->
+</div>
+<!--end::Entry-->
+</div>
+
+
+@endsection

@@ -98,6 +98,6 @@ Route::group(['middleware' => 'adminpermissions'], function () {
     Route::get('transaction/workflow', 'Tickets\Tickets_controller@TransactionWorkflow');
     Route::get('workflow/status/group', 'Tickets\Tickets_controller@WorkflowStatusGroup');
     
-    // Administration Logs
-    Route::get('administration-logs/get_logs', [App\Http\Controllers\AdministrationLogController::class, 'get_logs'])->name('administration_logs.get_logs');
+    // Administration Logs — name matches route('administration.logs') used in logs_modal.blade.php
+    Route::get('administration-logs/get_logs', [App\Http\Controllers\AdministrationLogController::class, 'get_logs'])->name('administration.logs');
 });
